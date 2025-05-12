@@ -1,0 +1,953 @@
+/* Version: 1.29 */
+/* ---------- Base and Typography ---------- */
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; font-family: "Segoe UI", Arial, sans-serif; line-height: 1.8; }
+      
+      /* ---------- CSS Variables ---------- */
+      :root {
+        /* Light mode */
+        --mode-light-bg: #fafafa;
+        --mode-light-panel: #fff;
+        --mode-light-text: #333;
+        /* Dark mode */
+        --mode-dark-bg: #1e1e1e;
+        --mode-dark-panel: #2b2b2b;
+        --mode-dark-text: #ddd;
+        /* Defaults */
+        --accent-color: #007acc;
+        --light-accent: rgba(0,122,204,0.2);
+        --icon-bg: #0068a0;
+        --background-color: var(--mode-light-bg);
+        --panel-bg: var(--mode-light-panel);
+        --text-color: var(--mode-light-text);
+        --highlight-color: gold;
+        --break-bg: rgba(0,122,204,0.08);
+        --header-bg: var(--accent-color);
+        --header-text: #fff;
+        --header-height: 70px;
+        --stats-height: 80px;
+        --report-background: #fff;
+        --report-header-bg: #fdeff0;
+      }
+      
+      /* ---------- Animations ---------- */
+      @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes glowPulse { from { box-shadow: 0 0 5px var(--accent-color); } to { box-shadow: 0 0 15px var(--accent-color); } }
+      /* Base active task animation (for dark mode) */
+      @keyframes activePulse {
+        0% { background-color: rgba(255, 0, 0, 0.15); box-shadow: inset 0 0 5px rgba(255, 0, 0, 0.3); }
+        50% { background-color: rgba(255, 0, 0, 0.35); box-shadow: inset 0 0 15px rgba(255, 0, 0, 0.7); }
+        100% { background-color: rgba(255, 0, 0, 0.15); box-shadow: inset 0 0 5px rgba(255, 0, 0, 0.3); }
+      }
+      /* Enhanced active task animation for light mode */
+      @keyframes activePulseLight {
+        0% { background-color: rgba(255, 0, 0, 0.35); box-shadow: inset 0 0 8px rgba(255, 0, 0, 0.5); }
+        50% { background-color: rgba(255, 0, 0, 0.65); box-shadow: inset 0 0 20px rgba(255, 0, 0, 0.8); }
+        100% { background-color: rgba(255, 0, 0, 0.35); box-shadow: inset 0 0 8px rgba(255, 0, 0, 0.5); }
+      }
+      .active-task {
+        animation: activePulse 2s infinite;
+        color: #fff;
+        border: 2px solid #ff4d4d;
+      }
+      .task-block.active-task {
+        animation: activePulse 2s infinite;
+        background-color: rgba(255, 0, 0, 0.15) !important;
+        color: #fff !important;
+        border: 2px solid #ff4d4d !important;
+      }
+      /* Override active task animation in light mode */
+      body:not(.dark-mode) .active-task {
+        animation: activePulseLight 2s infinite;
+      }
+      body:not(.dark-mode) .task-block.active-task {
+        animation: activePulseLight 2s infinite;
+        background-color: rgba(255, 0, 0, 0.35) !important;
+        color: #fff !important;
+        border: 2px solid #ff4d4d !important;
+      }
+      
+      /* ---------- Header ---------- */
+      #header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: var(--header-height);
+        background: var(--header-bg);
+        color: var(--header-text);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        z-index: 1000;
+        padding: 5px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      /* Left and middle sections */
+      #header .left-section, 
+      #header .middle-section { display: flex; align-items: center; }
+      #header .left-section { gap: 10px; }
+      /* Desktop right icons */
+      #header .right-section.desktop-icons { display: flex; align-items: center; }
+      /* Theme dropdown styles */
+      .theme-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 4px 8px;
+        cursor: pointer;
+      }
+      .theme-option:hover { cursor: pointer; }
+      .theme-name { margin-right: 8px; color: #333; }
+      body.dark-mode .theme-name { color: #fff; }
+      .theme-swatch { width: 20px; height: 20px; border: 1px solid #ccc; }
+      #themeDropdown, #themeDropdownMobile {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        display: none;
+        z-index: 1500;
+        font-size: 0.8rem;
+        min-width: 100px;
+      }
+      /* For mobile, ensure the theme dropdown displays fully with scrolling */
+      #themeDropdownMobile {
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      
+      /* Base rule for hamburger icon (desktop hidden) */
+      #header .mobile-hamburger {
+        display: none;
+        font-size: 1.8rem;
+        cursor: pointer;
+      }
+      
+      .logo-container {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.1));
+        border-radius: 10px;
+        padding: 5px;
+        margin: 10px 0 15px 0;
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+      .logo-container img.logo { max-height: 70px; width: auto; object-fit: contain; display: block; }
+      .logo-container:hover { transform: scale(1.1); box-shadow: 0 0 10px rgba(255,255,255,0.7); }
+      #plannerDate { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+      #plannerDate:hover { transform: scale(1.05); box-shadow: 0 0 5px var(--accent-color); }
+      #employeeNameDisplay { cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: transform 0.2s, background 0.2s; }
+      #employeeNameDisplay:hover { transform: scale(1.05); background: rgba(255,255,255,0.2); }
+      
+      /* ---------- Icon Buttons ---------- */
+      .icon-button {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: var(--icon-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--header-text);
+        font-size: 1.2rem;
+        cursor: pointer;
+        position: relative;
+        transition: transform 0.2s, filter 0.2s;
+      }
+      .icon-button:hover { filter: brightness(1.1); transform: scale(1.1); }
+      .icon-button::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: #fff;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .icon-button:hover::after { opacity: 1; }
+      
+      /* ---------- Dark Mode Overrides ---------- */
+      body.dark-mode {
+        background: var(--mode-dark-bg);
+        color: var(--mode-dark-text);
+      }
+      body.dark-mode #header {
+        background: var(--header-bg);
+        color: var(--header-text);
+      }
+      body.dark-mode .icon-button {
+        background: var(--icon-bg);
+        color: var(--header-text);
+      }
+      body.dark-mode #mobileMenuPane {
+        background: var(--mode-dark-panel);
+        border: 1px solid #444;
+      }
+      body.dark-mode #themeDropdown,
+      body.dark-mode #themeDropdownMobile {
+        background: var(--mode-dark-panel);
+        border: 1px solid #444;
+        color: var(--mode-dark-text);
+      }
+      body.dark-mode .tasksColumn,
+      body.dark-mode #time-grid table,
+      body.dark-mode #time-grid th,
+      body.dark-mode #time-grid td,
+      body.dark-mode #statsPanel {
+        background: var(--mode-dark-panel) !important;
+        color: var(--mode-dark-text) !important;
+      }
+      body.dark-mode input,
+      body.dark-mode select,
+      body.dark-mode textarea,
+      body.dark-mode button {
+        background: var(--mode-dark-panel);
+        border: 1px solid #444;
+        color: var(--mode-dark-text);
+      }
+      body.dark-mode .task-item,
+      body.dark-mode .task-block { background: #444 !important; color: #fff !important; }
+      body.dark-mode .tasksColumn { background: #333 !important; color: #fff !important; }
+      
+      /* ---------- Main Layout ---------- */
+      #main-container {
+        position: absolute;
+        top: var(--header-height);
+        bottom: var(--stats-height);
+        left: 0;
+        right: 0;
+        display: flex;
+        overflow: hidden;
+      }
+      /* Left Panel */
+      #left-panel {
+        width: 60%;
+        padding: 20px;
+        background: var(--panel-bg);
+        border-right: 2px solid #ddd;
+        display: flex;
+        flex-direction: column;
+      }
+      /* ---------- Task Entry Panel (Modified) ---------- */
+      #task-entry {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background: var(--panel-bg);
+        animation: glowPulse 2s infinite alternate;
+        padding: 8px;
+        margin-bottom: 10px;
+      }
+      /* Primary row always visible */
+      #task-entry .primary-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+      /* Toggle button for collapsible panel */
+      .toggle-btn {
+        background: transparent;
+        border: none;
+        font-size: 0.9rem;
+        cursor: pointer;
+        color: var(--accent-color);
+        margin-left: auto;
+      }
+      /* Additional fields container – collapsible on mobile */
+      #additionalTaskFields {
+        transition: max-height 0.3s ease-out;
+        overflow: hidden;
+      }
+      /* Expanded state */
+      #additionalTaskFields.expanded { max-height: 1000px; }
+      /* Collapsed state */
+      #additionalTaskFields.collapsed { max-height: 0; }
+      
+      #task-entry input[type="text"],
+      #task-entry input[type="number"],
+      #task-entry input[type="datetime-local"],
+      #task-entry select,
+      #task-entry textarea {
+        padding: 5px;
+        margin: 3px 0;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+        transition: box-shadow 0.3s;
+      }
+      #task-entry input[type="text"]:focus,
+      #task-entry select:focus,
+      #task-entry textarea:focus,
+      #task-entry input[type="datetime-local"]:focus {
+        box-shadow: 0 0 5px var(--accent-color);
+      }
+      #task-entry input[type="range"] { margin: 3px; }
+      #task-entry button {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 4px;
+        background: var(--accent-color);
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+      }
+      #task-entry button:hover {
+        background: var(--light-accent);
+        color: var(--accent-color);
+        transform: scale(1.05);
+      }
+      
+      /* Filter Section (separate from Task Entry) */
+      #filter-section {
+        margin-bottom: 15px;
+        text-align: left;
+      }
+      #filter-section label { font-weight: bold; margin-right: 10px; }
+      
+      /* Task Lists – two columns side‑by‑side */
+      #taskListsContainer {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        margin-bottom: 15px;
+        display: flex;
+        flex-direction: row;
+      }
+      .tasksColumn {
+        width: 50%;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background: var(--panel-bg);
+        padding: 5px;
+        box-sizing: border-box;
+      }
+      .tasksColumn:first-child { margin-right: 10px; }
+      .tasksColumn h3 { text-align: center; margin-bottom: 10px; }
+      .tasksColumn ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      /* By default, two tasks per row */
+      .tasksColumn ul li {
+        flex: 0 0 calc(50% - 10px);
+        background: var(--panel-bg);
+        border: 2px solid var(--accent-color);
+        border-radius: 8px;
+        padding: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .tasksColumn ul li:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px var(--accent-color);
+      }
+      /* On narrow mobile screens, show one task per row */
+      @media (max-width: 610px) {
+        .tasksColumn ul li {
+          flex: 0 0 100%;
+        }
+      }
+      .task-info { flex-grow: 1; font-size: 0.9rem; padding-right: 5px; }
+      .task-item button {
+        background: transparent;
+        border: none;
+        font-size: 1.3rem;
+        cursor: pointer;
+        transition: transform 0.2s;
+        color: var(--text-color);
+      }
+      .task-item button:hover {
+        transform: scale(1.2);
+        color: var(--accent-color);
+      }
+      
+      /* Priority Tasks – fixed at bottom of left panel */
+      #priorityTasks {
+        flex: 0 0 auto;
+        padding: 10px;
+        background: var(--panel-bg);
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        margin-top: 10px;
+        text-align: left;
+      }
+      #priorityTasks h3 { margin-bottom: 10px; }
+      #priorityTaskList { font-size: 0.9rem; text-align: left; }
+      
+      /* Right Panel – Time Grid and Analytics */
+      #right-panel {
+        width: 40%;
+        padding: 20px;
+        background: var(--panel-bg);
+        overflow-y: auto;
+      }
+      #time-grid { margin-bottom: 20px; overflow-x: auto; min-height: 300px; }
+      #time-grid table {
+        border-collapse: collapse;
+        width: 100%;
+        background: var(--panel-bg);
+        border: 2px solid #ccc;
+        border-radius: 6px;
+        min-height: 250px;
+      }
+      #time-grid th, #time-grid td {
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
+        vertical-align: top;
+        min-width: 100px;
+        color: var(--text-color);
+        position: relative;
+      }
+      #time-grid th { background: #fafafa; font-weight: 600; text-align: center; }
+      .break-cell { background: var(--break-bg) !important; }
+      .task-block {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 4px 0;
+        padding: 4px;
+        border: 2px solid var(--accent-color);
+        border-radius: 6px;
+        background: #f2f2f2;
+        transition: background 0.2s, transform 0.2s;
+        color: var(--text-color);
+        animation: fadeSlideIn 0.4s forwards;
+      }
+      .task-block:hover { background: #e3e3e3; transform: scale(1.03); }
+      .block-text { flex: 1; font-size: 0.85rem; }
+      .block-buttons { display: flex; gap: 4px; }
+      .block-buttons button {
+        background: transparent;
+        border: none;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s;
+        color: var(--text-color);
+      }
+      .block-buttons button:hover { transform: scale(1.2); color: var(--accent-color); }
+      .dragging { opacity: 0.5; }
+      
+      /* Inline Edit (for editing tasks) */
+      .inline-edit {
+        background: rgba(255,255,255,0.95);
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        padding: 5px;
+        margin-top: 5px;
+        width: 95%;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+      }
+      body.dark-mode .inline-edit {
+        background: rgba(34,34,34,0.95);
+        border: 1px solid #555;
+        color: var(--mode-dark-text);
+      }
+      .inline-edit input[type="text"],
+      .inline-edit input[type="number"],
+      .inline-edit input[type="datetime-local"],
+      .inline-edit select {
+        margin-bottom: 5px;
+        width: 100%;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      
+      /* ---------- Stats Panel ---------- */
+      #statsPanel {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: var(--panel-bg);
+        padding: 10px;
+        border-top: 2px solid #ccc;
+        z-index: 200;
+        display: grid;
+        grid-template-rows: auto 20px;
+        gap: 10px;
+      }
+      #statsInfo {
+        display: flex;
+        justify-content: space-around;
+        font-size: 0.9rem;
+      }
+      .progressBar {
+        width: 100%;
+        height: 14px;
+        background: #eee;
+        border-radius: 7px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+      }
+      .progressFill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--accent-color), var(--light-accent), var(--accent-color));
+        background-size: 200% 100%;
+        animation: progressFlow 3s linear infinite, progressGlow 2s ease-in-out infinite, progressPulse 2s ease-in-out infinite;
+        transition: width 0.6s ease-in-out;
+      }
+      @keyframes progressFlow { 0% { background-position: -100% 0; } 100% { background-position: 100% 0; } }
+      @keyframes progressGlow { 0% { box-shadow: 0 0 8px rgba(0,122,204,0.4); } 50% { box-shadow: 0 0 16px rgba(0,122,204,0.8); } 100% { box-shadow: 0 0 8px rgba(0,122,204,0.4); } }
+      @keyframes progressPulse { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(1.05); } }
+      #statPercent { text-align:center; font-weight:bold; }
+      
+      /* ---------- Print Report Styles ---------- */
+      #printView {
+        display: none;
+        padding: 15px;
+        background: var(--report-background);
+        color: #000;
+        font-size: 0.9rem;
+        text-align: left;
+        width: 100%;
+      }
+      #reportHeader {
+        border-bottom: 2px solid #333;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+      }
+      #reportHeader h1 { margin: 0; font-size: 1.2rem; }
+      #reportHeader .details { font-size: 0.8rem; margin-top: 5px; }
+      #reportHeader img { max-height: 40px; vertical-align: middle; margin-right: 20px; }
+      #reportSummary, #reportPriorities, #reportAnalytics, #reportBrainDump, #reportStats { margin-bottom: 10px; }
+      #reportSummary p, #reportStats p { margin: 4px 0; font-size: 0.8rem; }
+      #printTable {
+        width: 100%;
+        margin: 10px auto;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+        table-layout: fixed;
+        overflow-wrap: break-word;
+        word-break: normal;
+        page-break-inside: auto;
+      }
+      #printTable th, #printTable td {
+        border: 1px solid #999;
+        padding: 6px;
+        text-align: left;
+      }
+      #printTable th {
+        background-color: #4a4a4a;
+        color: #fff;
+        border-bottom: 3px solid #000;
+      }
+      #printTable tr:nth-child(odd) td { background-color: #fff; }
+      #printTable tr:nth-child(even) td { background-color: #f2f2f2; }
+      
+      /* ---------- Config and Help Panels ---------- */
+      #configPanel {
+        position: fixed;
+        top: 130px;
+        right: 10px;
+        width: 320px;
+        background: #111;
+        border: 2px solid #444;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        display: none;
+        z-index: 1000;
+        color: #fff;
+        transition: background 0.3s;
+      }
+      #configPanel h2 { margin: 0 0 10px; font-size: 1.3rem; text-align: center; color: #ffafc1; }
+      #configPanel label { display: block; margin: 8px 0 4px; font-weight: 600; }
+      #configPanel input[type="number"],
+      #configPanel input[type="text"],
+      #configPanel textarea,
+      #configPanel select {
+        width: 100%;
+        padding: 6px;
+        border-radius: 6px;
+        border: 1px solid #666;
+        background: #222;
+        color: #fff;
+      }
+      #configPanel textarea { height: 60px; resize: none; }
+      #configPanel .btnRow { text-align: right; margin-top: 10px; }
+      #configPanel button { margin-left: 5px; padding: 6px 12px; border: none; border-radius: 6px; background: #ffafc1; color: #000; cursor: pointer; font-weight: 600; transition: 0.2s; }
+      #configPanel button:hover { background: #ffc3cf; }
+      
+      #helpModal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #helpContent {
+        background: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        max-width: 600px;
+        width: 90%;
+        text-align: left;
+        max-height: 80%;
+        overflow-y: auto;
+      }
+      #helpContent h2 { margin-top: 0; color: var(--accent-color); }
+      #helpContent button {
+        margin-top: 10px;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        background: var(--accent-color);
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.2s;
+      }
+      #helpContent button:hover { background: var(--light-accent); color: var(--accent-color); transform: scale(1.05); }
+      body.dark-mode #helpContent { background: var(--mode-dark-panel); color: var(--mode-dark-text); }
+      
+      /* ---------- Mobile Optimizations ---------- */
+      @media (max-width: 768px) {
+        /* Shrink header for a minimalist, single-line look */
+        #header {
+          flex-direction: row;
+          align-items: center;
+          height: auto;
+          padding: 5px 10px;
+          overflow-x: auto;
+        }
+        /* Reduce horizontal margins between header items */
+        #header .left-section > *,
+        #header .middle-section > * { margin-right: 5px; }
+        #header .middle-section > * { margin-left: 5px; }
+        
+        /* Make title smaller */
+        #header h1 {
+          font-size: 1rem;
+          margin: 0 8px;
+        }
+        /* Hide 'Date:' label, narrower date input */
+        #header label[for="plannerDate"] {
+          display: none;
+        }
+        #plannerDate {
+          max-width: 100px;
+          font-size: 0.85rem;
+          margin-right: 8px;
+        }
+        /* Slightly smaller employee name */
+        #employeeNameDisplay {
+          font-size: 0.85rem;
+          margin: 0 5px;
+          max-width: 120px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        /* Make timer text smaller */
+        #timerDisplay {
+          font-size: 0.8rem;
+        }
+        /* Ensure hamburger icon is visible and pinned to the right */
+        #header .mobile-hamburger {
+          display: block;
+          margin-left: auto;
+          flex-shrink: 0;
+        }
+        /* Hide desktop icons in mobile */
+        #header .right-section.desktop-icons { display: none; }
+        /* In mobile view, hide the right panel (use one pane layout) */
+        #right-panel { display: none; }
+        /* Left panel covers the full container width */
+        #left-panel { width: 100%; }
+        #main-container { flex-direction: column; }
+      }
+      
+      /* ---------- 2) Hide more at ≤610px ---------- */
+      @media (max-width: 610px) {
+        /* Hide the main title text to save space */
+        #header h1 { display: none; }
+        /* Reduce logo size further */
+        .logo-container img.logo { max-height: 50px; }
+        /* Narrow date input even more */
+        #plannerDate {
+          max-width: 80px;
+          font-size: 0.8rem;
+        }
+        /* Shorten employee name further */
+        #employeeNameDisplay {
+          max-width: 80px;
+          font-size: 0.8rem;
+        }
+      }
+      
+      /* ---------- 3) Extra-narrow (≤480px) ---------- */
+      @media (max-width: 480px) {
+        /* Optionally hide the timer display */
+        #timerDisplay { display: none; }
+        /* Shrink the logo further */
+        .logo-container img.logo { max-height: 40px; }
+      }
+      
+      /* ---------- Mobile Menu Pane Styles ---------- */
+      @media (max-width: 768px) {
+        /* Set mobile menu pane width to match icon size (60px) */
+        #mobileMenuPane {
+          display: block;
+          position: fixed;
+          top: var(--header-height);
+          right: -60px;
+          width: 60px;
+          height: calc(100% - var(--header-height));
+          background: var(--panel-bg);
+          box-shadow: -2px 0 6px rgba(0,0,0,0.3);
+          transition: right 0.3s ease-in-out;
+          z-index: 1100;
+          padding: 5px 0;
+          text-align: center;
+        }
+        #mobileMenuPane.open { right: 0; }
+        #mobileMenuPane .icon-button {
+          margin: 10px auto;
+          width: 42px;
+          height: 42px;
+          font-size: 1.2rem;
+        }
+        /* For mobile theme dropdown (now fixed to show full list with scroll) */
+        #themeDropdownMobile {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          background: #fff;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+          display: none;
+          z-index: 1500;
+          font-size: 0.8rem;
+          min-width: 60px;
+          max-height: 200px;
+          overflow-y: auto;
+        }
+      }
+      
+      /* ---------- Print Media (Force Light Theme) ---------- */
+      @media print {
+        html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, font, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var,
+        b, u, i, center, li, dl, dt, dd, ol, ul, li,
+        table, caption, tbody, tfoot, thead, tr, th, td,
+        article, aside, canvas, details, embed,
+        figure, figcaption, footer, header, hgroup,
+        menu, nav, output, ruby, section, summary,
+        time, mark, audio, video {
+          background: transparent !important;
+          color: #000 !important;
+          -webkit-print-color-adjust: exact !important;
+        }
+        body, #printView, #reportHeader, #reportSummary, #reportProgress,
+        #reportPriorities, #reportAnalytics, #reportBrainDump, #reportStats {
+          background: #fff !important;
+          color: #000 !important;
+        }
+        body.dark-mode { background: #fff !important; color: #000 !important; }
+        #header, #main-container, #statsPanel, #configPanel, #helpModal { display: none !important; }
+        #printView {
+          display: block !important;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+        }
+        #reportHeader img { max-height: 40px; vertical-align: middle; margin-right: 20px; }
+        #printTable {
+          width: 100%;
+          margin: 10px auto;
+          border-collapse: collapse;
+          font-size: 0.8rem;
+          table-layout: fixed;
+          overflow-wrap: break-word;
+          word-break: normal;
+          page-break-inside: auto;
+        }
+        #printTable th, #printTable td { border: 1px solid #999; padding: 6px; text-align: left; }
+        #printTable th {
+          background-color: #4a4a4a;
+          color: #fff;
+          border-bottom: 3px solid #000;
+        }
+        #printTable tr:nth-child(odd) td { background-color: #fff; }
+        #printTable tr:nth-child(even) td { background-color: #f2f2f2; }
+      }
+
+@media print {
+        html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, font, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var,
+        b, u, i, center, li, dl, dt, dd, ol, ul, li,
+        table, caption, tbody, tfoot, thead, tr, th, td,
+        article, aside, canvas, details, embed,
+        figure, figcaption, footer, header, hgroup,
+        menu, nav, output, ruby, section, summary,
+        time, mark, audio, video {
+          background: transparent !important;
+          color: #000 !important;
+          -webkit-print-color-adjust: exact !important;
+        }
+        body, #printView, #reportHeader, #reportSummary, #reportProgress,
+        #reportPriorities, #reportAnalytics, #reportBrainDump, #reportStats {
+          background: #fff !important;
+          color: #000 !important;
+        }
+        body.dark-mode { background: #fff !important; color: #000 !important; }
+        #header, #main-container, #statsPanel, #configPanel, #helpModal { display: none !important; }
+        #printView {
+          display: block !important;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+        }
+        #reportHeader img { max-height: 40px; vertical-align: middle; margin-right: 20px; }
+        #printTable {
+          width: 100%;
+          margin: 10px auto;
+          border-collapse: collapse;
+          font-size: 0.8rem;
+          table-layout: fixed;
+          overflow-wrap: break-word;
+          word-break: normal;
+          page-break-inside: auto;
+        }
+        #printTable th, #printTable td { border: 1px solid #999; padding: 6px; text-align: left; }
+        #printTable th {
+          background-color: #4a4a4a;
+          color: #fff;
+          border-bottom: 3px solid #000;
+        }
+        #printTable tr:nth-child(odd) td { background-color: #fff; }
+        #printTable tr:nth-child(even) td { background-color: #f2f2f2; }
+      }
+
+
+/* v1.11: Dark-mode theme dropdown hover fix */
+body.dark-mode .theme-option:hover { cursor: pointer; }
+
+/* v1.11: Mobile scrolling fix */
+@media (max-width: 768px) {
+  body, #left-panel, #mobileMenuPane { overflow-y: auto !important; }
+}
+
+/* v1.11: Visually Hidden Utility */
+.visually-hidden {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+}
+
+/* v1.11: Toast messages */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--accent-color);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  opacity: 0;
+  animation: fadeSlideIn 0.3s forwards, fadeSlideOut 0.3s forwards 2.7s;
+  font-size: 0.9rem;
+}
+@keyframes fadeSlideOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* v1.16: Theme dropdown hover styling */
+.theme-option:hover {
+  background-color: var(--light-accent);
+  transition: background-color 0.2s ease;
+}
+body.dark-mode .theme-option:hover {
+  background-color: rgba(255,255,255,0.15);
+  transition: background-color 0.2s ease;
+}
+
+
+@media (max-width: 768px) {
+  body {
+    overflow-y: auto !important;
+  }
+  #left-panel {
+    height: auto !important;
+    overflow: visible !important;
+  }
+  #taskListsContainer {
+    overflow-y: auto;
+    max-height: 60vh;
+  }
+}
+
+@media (max-width: 768px) {
+  #main-container { overflow-y: auto !important; }
+}
+
+
+/* Ensure full-page scrolling on mobile */
+@media (max-width: 768px) {
+  html, body { overflow-y: auto !important; }
+}
+
+
+/* Mobile config panel adjustments */
+@media (max-width: 768px) {
+  #configPanel {
+    width: 90% !important;
+    top: 60px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%);
+    max-height: 80vh !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* Ensure config panel action buttons are always visible on mobile */
+@media (max-width: 768px) {
+  #configPanel .btnRow {
+    position: sticky !important;
+    bottom: 0;
+    background: var(--panel-bg);
+    padding-top: 10px;
+    z-index: 1001;
+  }
+}

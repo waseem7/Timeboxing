@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Meta Information & Version Control -->
+    <!-- Version: 1.29 -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Timeboxing Planner – Final Version</title>
+    <meta property="og:title" content="Timeboxing Planner" />
+    <meta property="og:description" content="Manage your tasks with Timeboxing Planner." />
+    <meta property="og:image" content="https://png.pngtree.com/png-vector/20241211/ourlarge/pngtree-time-management-and-scheduling-icon-calendar-clock-outline-vector-illustration-png-image_14724132.png" />
+    <meta property="og:url" content="https://timeblocking.tiiny.site" />
+    <meta name="twitter:image" content="https://png.pngtree.com/png-vector/20241211/ourlarge/pngtree-time-management-and-scheduling-icon-calendar-clock-outline-vector-illustration-png-image_14724132.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>⏰</text></svg>" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js" defer></script>
+    
+    <!-- ---------- Styles ---------- -->
+    
+    <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+  <body>
+  <div id="ariaLive" aria-live="polite" class="visually-hidden"></div>
+    <!-- ---------- Audio Effects ---------- -->
+    <audio id="audioAdd" src="https://www.soundjay.com/buttons/sounds/button-35.mp3" preload="auto"></audio>
+    <audio id="audioEdit" src="https://www.soundjay.com/buttons/sounds/button-29.mp3" preload="auto"></audio>
+    <audio id="audioComplete" src="https://www.soundjay.com/buttons/sounds/button-3.mp3" preload="auto"></audio>
+    <audio id="audioHover" src="https://www.soundjay.com/buttons/sounds/button-30.mp3" preload="auto"></audio>
+    <audio id="audioDelete" src="https://www.soundjay.com/buttons/sounds/button-09a.mp3" preload="auto"></audio>
+    <audio id="audioClick" src="https://www.soundjay.com/buttons/button-21.mp3" preload="auto"></audio>
+    <audio id="audioClear" src="https://www.soundjay.com/cleaning/broom-sweep-1.mp3" preload="auto"></audio>
+    
+    <!-- ---------- Header ---------- -->
+    <div id="header">
+      <div class="left-section">
+        <div class="logo-container">
+          <img id="companyLogo" class="logo" src="https://www.adada-kabbani.com/images/adadaKabbaniLogo-mod=w=360,q=85.png" alt="Company Logo" onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=Logo';">
+        </div>
+        <h1>Timeboxing Planner</h1>
+        <label for="plannerDate">Date:</label>
+        <input type="date" id="plannerDate" />
+      </div>
+      <div class="middle-section">
+        <span id="employeeNameDisplay" title="Double‑click to change your name">Employee Name</span>
+        <span id="timerDisplay"></span>
+      </div>
+      <!-- Desktop icons -->
+      <div class="right-section desktop-icons">
+        <div class="icon-button" id="importBtn" data-tooltip="Import CSV" onmouseenter="playHoverSound()" tabindex="0" aria-label="Import CSV">
+          <span class="icon-glyph">⬇️</span>
+        </div>
+        <input type="file" id="importFile" accept=".csv" class="visually-hidden" />
+        <div class="icon-button" id="exportBtn" data-tooltip="Export CSV" onmouseenter="playHoverSound()" tabindex="0" aria-label="Export CSV">
+          <span class="icon-glyph">⬆️</span>
+        </div>
+        <div class="icon-button" id="printBtn" data-tooltip="Print Report" onmouseenter="playHoverSound()" tabindex="0" aria-label="Print Report">
+          <span class="icon-glyph">🖨️</span>
+        </div>
+        <div class="icon-button" id="clearBtn" data-tooltip="Clear All Tasks" onmouseenter="playHoverSound()" tabindex="0" aria-label="Clear All Tasks">
+          <span class="icon-glyph">🗑️</span>
+        </div>
+        <div class="icon-button" id="undoBtn" data-tooltip="Undo Last Change" onmouseenter="playHoverSound()" tabindex="0" aria-label="Undo">
+          <span class="icon-glyph">↩️</span>
+        </div>
+        <div class="icon-button" id="redoBtn" data-tooltip="Redo Change" onmouseenter="playHoverSound()" tabindex="0" aria-label="Redo">
+          <span class="icon-glyph">↪️</span>
+        </div>
+        <div class="icon-button" id="gearBtn" data-tooltip="Settings" onmouseenter="playHoverSound()" tabindex="0" aria-label="Settings">
+          <span class="icon-glyph">⚙️</span>
+        </div>
+        <div class="icon-button" id="muteBtn" data-tooltip="Mute/Unmute Sounds" onmouseenter="playHoverSound()" tabindex="0" aria-label="Mute Sounds"><span class="icon-glyph">🔊</span></div>
+        <div class="icon-button" id="helpBtn" data-tooltip="Help &amp; Instructions" onmouseenter="playHoverSound()" tabindex="0" aria-label="Help">
+          <span class="icon-glyph">❓</span>
+        </div>
+        <div class="icon-button" id="themeBtn" data-tooltip="Cycle Theme Color" onmouseenter="playHoverSound()" tabindex="0" aria-label="Cycle Theme Color">
+          <span class="icon-glyph">🎨</span>
+          <div id="themeDropdown"></div>
+        </div>
+                <div class="icon-button" id="modeToggleBtn" data-tooltip="Toggle Light/Dark Mode" onmouseenter="playHoverSound()" tabindex="0" aria-label="Toggle Light/Dark Mode">
+          <span class="icon-glyph">🌞</span>
+        </div>
+        <div class="icon-button" id="calendarSyncBtn" data-tooltip="Calendar Sync" onmouseenter="playHoverSound()" tabindex="0" aria-label="Calendar Sync">
+          <span class="icon-glyph">📅</span>
+        </div>
+      </div>
+      <!-- Mobile hamburger icon (only visible on mobile) -->
+      <div class="mobile-hamburger" id="mobileHamburger" tabindex="0" aria-label="Mobile Menu">☰</div>
+    </div>
+    
+    <!-- Mobile Menu Pane (only for mobile) -->
+    <div id="mobileMenuPane">
+      <div class="icon-button" id="importBtnMobile" data-tooltip="Import CSV" onmouseenter="playHoverSound()" tabindex="0" aria-label="Import CSV">
+        <span class="icon-glyph">⬇️</span>
+      </div>
+      <input type="file" id="importFileMobile" accept=".csv" class="visually-hidden" />
+      <div class="icon-button" id="exportBtnMobile" data-tooltip="Export CSV" onmouseenter="playHoverSound()" tabindex="0" aria-label="Export CSV">
+        <span class="icon-glyph">⬆️</span>
+      </div>
+      <div class="icon-button" id="printBtnMobile" data-tooltip="Print Report" onmouseenter="playHoverSound()" tabindex="0" aria-label="Print Report">
+        <span class="icon-glyph">🖨️</span>
+      </div>
+      <div class="icon-button" id="clearBtnMobile" data-tooltip="Clear All Tasks" onmouseenter="playHoverSound()" tabindex="0" aria-label="Clear All Tasks">
+        <span class="icon-glyph">🗑️</span>
+      </div>
+      <div class="icon-button" id="undoBtnMobile" data-tooltip="Undo Last Change" onmouseenter="playHoverSound()" tabindex="0" aria-label="Undo">
+        <span class="icon-glyph">↩️</span>
+      </div>
+      <div class="icon-button" id="redoBtnMobile" data-tooltip="Redo Change" onmouseenter="playHoverSound()" tabindex="0" aria-label="Redo">
+        <span class="icon-glyph">↪️</span>
+      </div>
+      <div class="icon-button" id="gearBtnMobile" data-tooltip="Settings" onmouseenter="playHoverSound()" tabindex="0" aria-label="Settings">
+        <span class="icon-glyph">⚙️</span>
+      </div>
+      <div class="icon-button" id="helpBtnMobile" data-tooltip="Help &amp; Instructions" onmouseenter="playHoverSound()" tabindex="0" aria-label="Help">
+        <span class="icon-glyph">❓</span>
+      </div>
+      <div class="icon-button" id="themeBtnMobile" data-tooltip="Cycle Theme Color" onmouseenter="playHoverSound()" tabindex="0" aria-label="Cycle Theme Color">
+        <span class="icon-glyph">🎨</span>
+        <div id="themeDropdownMobile"></div>
+      </div>
+      <div class="icon-button" id="muteBtnMobile" data-tooltip="Mute/Unmute Sounds" tabindex="0" aria-label="Mute Sounds" onmouseenter="playHoverSound()"><span class="icon-glyph">🔊</span></div>
+      <div class="icon-button" id="modeToggleBtnMobile" data-tooltip="Toggle Light/Dark Mode" onmouseenter="playHoverSound()" tabindex="0" aria-label="Toggle Light/Dark Mode">
+        <span class="icon-glyph">🌞</span>
+      </div>
+      <div class="icon-button" id="calendarSyncBtnMobile" data-tooltip="Calendar Sync" onmouseenter="playHoverSound()" tabindex="0" aria-label="Calendar Sync">
+        <span class="icon-glyph">📅</span>
+      </div>
+    </div>
+    
+    <!-- ---------- Main Container ---------- -->
+    <div id="main-container">
+      <!-- Left Panel (used as the single pane in mobile) -->
+      <div id="left-panel">
+        <!-- Task Entry & Filter Section -->
+        <div id="left-top">
+          <h2>Task Entry</h2>
+          <div id="task-entry">
+            <div class="entry-row primary-row">
+              <input type="text" id="taskInput" placeholder="Task Description" />
+              <label for="durationInput">Duration:
+                <input type="number" id="durationInput" value="1" min="1" max="10" />
+              </label>
+              <label for="taskTime">Time:
+                <select id="taskTime"></select>
+              </label>
+              <!-- Toggle button for additional fields (visible on mobile) -->
+              <button id="toggleTaskEntryBtn" class="toggle-btn">Show More</button>
+            </div>
+            <div id="additionalTaskFields">
+              <div class="entry-row">
+                <label for="taskCategory">Action:
+                  <select id="taskCategory"></select>
+                  <span id="catInlineBox" class="inline-addbox" style="display:none;"></span>
+                </label>
+                <label for="taskFlag">Category:
+                  <select id="taskFlag"></select>
+                  <span id="flagInlineBox" class="inline-addbox" style="display:none;"></span>
+                </label>
+                <label for="taskParent">Parent:
+                  <select id="taskParent"></select>
+                  <span id="parentInlineBox" class="inline-addbox" style="display:none;"></span>
+                </label>
+              </div>
+              <div class="entry-row">
+                <label for="taskRemarks">Remarks:
+                  <input type="text" id="taskRemarks" placeholder="Optional remarks" />
+                </label>
+                <label for="prioritySlider">Priority:
+                  <input type="range" id="prioritySlider" min="1" max="5" value="3" />
+                </label>
+                <label><input type="checkbox" id="doneToggle" /> Completed</label>
+              </div>
+              <div class="entry-row">
+                <label for="taskRecurrence">Recurrence:
+                  <select id="taskRecurrence">
+                    <option value="">None</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                  </select>
+                </label>
+                <label for="taskDeadline">Deadline:
+                  <input type="datetime-local" id="taskDeadline" />
+                </label>
+                <button id="addTaskBtn">Add Task</button>
+              </div>
+            </div>
+          </div>
+          <!-- Filter Section (below task entry) -->
+          <div id="filter-section">
+            <label for="filterCategory">Filter by Action:</label>
+            <select id="filterCategory">
+              <option value="All">All</option>
+            </select>
+            <label for="filterFlag">Filter by Category:</label>
+            <select id="filterFlag">
+              <option value="All">All</option>
+            </select>
+            <label for="filterParent">Filter by Parent:</label>
+            <select id="filterParent">
+              <option value="All">All</option>
+            </select>
+          </div>
+        </div>
+        <!-- Task Lists Container -->
+        <div id="taskListsContainer">
+          <div class="tasksColumn" role="list" aria-label="All Tasks">
+            <h3>All Tasks</h3>
+            <ul id="allTasksList"></ul>
+          </div>
+          <div class="tasksColumn" role="list" aria-label="Unassigned Tasks">
+            <h3>Unassigned Tasks</h3>
+            <ul id="taskList"></ul>
+          </div>
+        </div>
+        <!-- Priority Tasks Section -->
+        <div id="priorityTasks">
+          <h3 style="text-align:left;">Priority Tasks</h3>
+          <div id="priorityTaskList"></div>
+        </div>
+      </div>
+      
+      <!-- Right Panel (hidden in mobile) -->
+      <div id="right-panel">
+        <h2>Daily Time Block Schedule</h2>
+        <p style="margin:0 0 10px 0;">
+          Tasks repeat across all cells. Drag to move or double‑click to edit.
+          (For mobile, the grid stacks vertically.)
+        </p>
+        <div id="time-grid"></div>
+        <div id="analyticsPanel">
+          <h2>Analytics</h2>
+          <div id="hoursPerCategory"></div>
+          <div id="topTasksByPriority"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stats Panel -->
+    <div id="statsPanel">
+      <div id="statsInfo">
+        <span><strong>Total Tasks:</strong> <span id="statTotal"></span></span>
+        <span><strong>Completed:</strong> <span id="statDone"></span></span>
+      </div>
+      <div class="progressBar">
+        <div class="progressFill" id="statProgress"></div>
+      </div>
+      <div id="statPercent" style="text-align:center; font-weight:bold;"></div>
+    </div>
+    
+    <!-- Print Report View -->
+    <div id="printView">
+      <div id="reportHeader">
+        <img id="printLogo" src="" alt="Company Logo">
+        <h1>Timeboxing Report</h1>
+        <div class="details">
+          <span>Date: <span id="printDate"></span></span> |
+          <span>Employee: <span id="printEmployee"></span></span>
+        </div>
+      </div>
+      <div id="reportSummary">
+        <h2>Summary</h2>
+        <p>Total Tasks: <strong id="sumTotal"></strong></p>
+        <p>Completed: <strong id="sumCompleted"></strong></p>
+        <p>Completion: <strong id="sumPercent"></strong>%</p>
+      </div>
+      <div id="reportProgress">
+        <div class="progressBar">
+          <div class="progressFill" id="printProgress"></div>
+        </div>
+      </div>
+      <div id="reportPriorities">
+        <h2>Top Priorities</h2>
+        <div id="reportPrioritiesList"></div>
+      </div>
+      <div id="reportAnalytics">
+        <h2>Analytics</h2>
+        <div id="reportAnalyticsContent"></div>
+      </div>
+      <div id="reportBrainDump">
+        <h2>Brain Dump (Unassigned Tasks)</h2>
+        <div id="reportBrainDumpList"></div>
+      </div>
+      <div id="reportStats">
+        <h2>Detailed Stats</h2>
+        <table id="printTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Description</th>
+              <th>Action</th>
+              <th>Category</th>
+              <th>Time</th>
+              <th>Priority</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="printTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    
+    <!-- Config Panel -->
+    <div id="configPanel">
+      <h2>Configuration</h2>
+      <label for="startHour">Start Hour (0‑23)</label>
+      <input type="number" id="startHour" min="0" max="23">
+      <label for="endHour">End Hour (0‑23)</label>
+      <input type="number" id="endHour" min="0" max="23">
+      <label for="blockDuration">Block Duration (minutes)</label>
+      <input type="number" id="blockDuration" min="5" max="60">
+      <label for="breakTimes">Break Times (e.g. 12:00 PM‑1:00 PM)</label>
+      <input type="text" id="breakTimes">
+      <label for="catList">Categories (one per line)</label>
+      <textarea id="catList"></textarea>
+      <label for="flagList">Labels (one per line)</label>
+      <textarea id="flagList"></textarea>
+      <label for="employeeName">Employee Name</label>
+      <input type="text" id="employeeName">
+      <label for="companyLogoURL">Company Logo URL</label>
+      <input type="text" id="companyLogoURL">
+      <div class="btnRow">
+        <button id="cancelConfigBtn">Cancel</button>
+        <button id="saveConfigBtn">Save</button>
+      </div>
+    </div>
+    
+    <!-- Help Modal -->
+    <div id="helpModal">
+      <div id="helpContent">
+        <h2>Multi‑Block Timeboxing Help</h2>
+        <p><strong>Drag inside the Grid:</strong> Drag a task block from one cell to another to change its start time.</p>
+        <p><strong>Inline Editing:</strong> Double‑click a task to edit it. Changes finalize when you click outside the edit box.</p>
+        <p><strong>Add New Category/Label:</strong> Select “Add New…” from the dropdown to add a new value inline.</p>
+        <p><strong>Animations:</strong> Tasks, icons, and text animate smoothly on hover.</p>
+        <button id="closeHelpBtn">Close</button>
+      </div>
+    </div>
+    
+    <!-- ---------- JavaScript: Full Code in One IIFE ---------- -->
+    
+    
+    <!-- ---------- Print Media Only Styles (Force Light Theme) ---------- -->
+    
+  </body>
+</html>
