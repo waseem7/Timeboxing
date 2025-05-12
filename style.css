@@ -951,3 +951,34 @@ body.dark-mode .theme-option:hover {
     z-index: 1001;
   }
 }
+
+/* Firebase Auth Inline Form Styles */
+.auth-form {
+  display: inline-block;
+  position: absolute;
+  top: var(--header-height);
+  right: 10px;
+  background: var(--panel-bg);
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  z-index: 1001;
+}
+.auth-form.hidden { display: none; }
+.auth-form input {
+  display: block;
+  margin: 5px 0;
+  padding: 5px;
+  width: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+.auth-buttons { display: flex; justify-content: space-between; }
+.auth-buttons button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  background: var(--accent-color);
+  color: #fff;
+  cursor: pointer;
+}

@@ -18,7 +18,25 @@
     <!-- ---------- Styles ---------- -->
     
     <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  <!-- Firebase v2.1 init -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyDUfZcerQmH-MePbFLbLCZ2LnrXhq0xRmQ",
+      authDomain: "timeboxing-3343b.firebaseapp.com",
+      projectId: "timeboxing-3343b",
+      storageBucket: "timeboxing-3343b.appspot.com",
+      messagingSenderId: "1045510573085",
+      appId: "1:1045510573085:web:a3f89342ea8d0a61714af4",
+      measurementId: "G-P3QSXGFNJK"
+    };
+    window.firebaseApp = initializeApp(firebaseConfig);
+    window.firebaseAuth = getAuth(window.firebaseApp);
+    window.firebaseDb = getFirestore(window.firebaseApp);
+  </script>
+  <script type="module" src="script.js"></script>
 </head>
   <body>
   <div id="ariaLive" aria-live="polite" class="visually-hidden"></div>
@@ -47,6 +65,20 @@
       </div>
       <!-- Desktop icons -->
       <div class="right-section desktop-icons">
+        <!-- Auth Button & Inline Form -->
+        <div class="icon-button" id="authBtn" data-tooltip="Login" tabindex="0" aria-label="Login">
+          <span class="icon-glyph">🔐</span>
+        </div>
+        <div id="authForm" class="auth-form hidden">
+          <form id="loginForm">
+            <input type="email" id="authEmail" placeholder="Email" required />
+            <input type="password" id="authPassword" placeholder="Password" required />
+            <div class="auth-buttons">
+              <button type="submit" id="loginBtn">Login</button>
+              <button type="button" id="signupBtn">Sign Up</button>
+            </div>
+          </form>
+        </div>
         <div class="icon-button" id="importBtn" data-tooltip="Import CSV" onmouseenter="playHoverSound()" tabindex="0" aria-label="Import CSV">
           <span class="icon-glyph">⬇️</span>
         </div>
@@ -313,7 +345,7 @@
       <input type="text" id="breakTimes">
       <label for="catList">Categories (one per line)</label>
       <textarea id="catList"></textarea>
-      <label for="flagList">Labels (one per line)</label>
+        <label for="flagList">Labels (one per line)</label>
       <textarea id="flagList"></textarea>
       <label for="employeeName">Employee Name</label>
       <input type="text" id="employeeName">

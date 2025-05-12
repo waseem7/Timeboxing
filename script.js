@@ -1,4 +1,8 @@
 /* Version: 1.29 */
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+import { doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
+const auth = window.firebaseAuth, db = window.firebaseDb;
+
 (function () {
         // Prevent duplicate initialization
         if (window.__timeboxInitialized) return;
@@ -157,12 +161,18 @@ if (muteBtnMobile) {
   muteBtnMobile.querySelector('.icon-glyph').textContent = config.muteSounds ? '🔇' : '🔊';
   muteBtnMobile.setAttribute('aria-label', config.muteSounds ? 'Unmute Sounds' : 'Mute Sounds');
 }
-
-  
-          /* ---------- Storage Functions ---------- */
-          function saveData() {
-            localStorage.setItem("timeboxingAddNewData", JSON.stringify({ config, tasks, taskIdCounter }));
-          }
+/* ---------- Storage Functions ---------- */
+function saveData() {
+  const payload = { config, tasks, taskIdCounter };
+  if (auth.currentUser) {
+    // signed-in → write to Firestore
+    setDoc(doc(db, "users", auth.currentUser.uid), payload)
+      .catch(err => console.error("Firestore write failed:", err));
+  } else {
+    // not signed-in → localStorage fallback
+    localStorage.setItem("timeboxingAddNewData", JSON.stringify(payload));
+  }
+}
           function loadData() {
             const s = localStorage.getItem("timeboxingAddNewData");
             if (s) {
@@ -1765,4 +1775,67 @@ if (muteBtnMobile) {
 });
       })();
 
+    // ─── Firebase Auth Inline Form ─────────────────
+    const authForm = document.getElementById("authForm");
+    const loginForm = document.getElementById("loginForm");
+    const authBtn = document.getElementById("authBtn");
+    authBtn.addEventListener("click", () => {
+      if (auth.currentUser) {
+        signOut(auth);
+      } else {
+        authForm.classList.toggle("hidden");
+      }
+    });
+    loginForm.addEventListener("submit", e => {
+      e.preventDefault();
+      const email = document.getElementById("authEmail").value;
+      const password = document.getElementById("authPassword").value;
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => authForm.classList.add("hidden"))
+        .catch(e => alert("Login failed: " + e.message));
+    });
+    document.getElementById("signupBtn").addEventListener("click", () => {
+      const email = document.getElementById("authEmail").value;
+      const password = document.getElementById("authPassword").value;
+      createUserWithEmailAndPassword(auth, email, password)
+        .then(() => { alert("Account created & logged in."); authForm.classList.add("hidden"); })
+        .catch(e => alert("Sign up failed: " + e.message));
+    });
+    document.addEventListener("click", e => {
+      if (!authForm.contains(e.target) && !authBtn.contains(e.target)) {
+        authForm.classList.add("hidden");
+      }
+    });
+// ─── AUTH STATE & FIRESTORE SYNC ─────────────────────────────────────────
+onAuthStateChanged(auth, user => {
+  // 1) lock/unlock icons and tooltips
+  document.querySelectorAll("#authBtn .icon-glyph, #authBtnMobile .icon-glyph")
+    .forEach(el => el.textContent = user ? "🔓" : "🔐");
+  document.querySelectorAll("#authBtn, #authBtnMobile")
+    .forEach(btn => btn.setAttribute("data-tooltip", user ? "Logout" : "Login"));
 
+  // 2) show email next to employee name
+  const emp = document.getElementById("employeeNameDisplay");
+  if (emp) {
+    emp.textContent = config.employeeName
+      + (user ? " – " + (user.email || user.displayName) : "");
+  }
+
+  if (user) {
+    // pull from Firestore in real time
+    onSnapshot(doc(db, "users", user.uid), snap => {
+      if (!snap.exists()) return;
+      const d = snap.data();
+      config = d.config;
+      tasks = d.tasks;
+      taskIdCounter = d.taskIdCounter;
+      updateEmployeeAndLogo();
+      renderAllViews();
+    });
+  } else {
+    // signed out → fallback to localStorage data
+    loadData();
+    updateEmployeeAndLogo();
+    renderAllViews();
+  }
+});
