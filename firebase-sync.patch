@@ -1,0 +1,90 @@
+diff --git a/index.html b/index.html
+--- a/index.html
++++ b/index.html
+@@ -20,7 +20,20 @@
+     <link rel="stylesheet" href="style.css">
+-  <script src="script.js" defer></script>
++  <!-- Firebase init (v2.1) -->
++  <script type="module">
++    import { initializeApp }  from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
++    import { getAuth }        from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
++    import { getFirestore }   from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
++    const firebaseConfig = {
++      apiKey: "AIzaSyDUfZcerQmH-MePbFLbLCZ2LnrXhq0xRmQ",
++      authDomain: "timeboxing-3343b.firebaseapp.com",
++      projectId: "timeboxing-3343b",
++      storageBucket: "timeboxing-3343b.appspot.com",
++      messagingSenderId: "1045510573085",
++      appId: "1:1045510573085:web:a3f89342ea8d0a61714af4"
++    };
++    window.firebaseApp  = initializeApp(firebaseConfig);
++    window.firebaseAuth = getAuth(window.firebaseApp);
++    window.firebaseDb   = getFirestore(window.firebaseApp);
++  </script>
++  <script type="module" src="script.js"></script>
+diff --git a/script.js b/script.js
+--- a/script.js
++++ b/script.js
+@@ -1,6 +1,10 @@
+-(function () {
++import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
++import { doc, setDoc, onSnapshot }                           from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
++
++// firebaseApp, firebaseAuth, firebaseDb injected via index.html
++const auth = window.firebaseAuth;
++const db   = window.firebaseDb;
++
+ (function () {
+   if (window.__timeboxInitialized) return;
+   window.__timeboxInitialized = true;
+@@ -40,7 +44,14 @@
+   /* ---------- Storage Functions ---------- */
+   function saveData() {
+-    localStorage.setItem("timeboxingAddNewData", JSON.stringify({ config, tasks, taskIdCounter }));
++    const payload = { config, tasks, taskIdCounter };
++    if (auth.currentUser) {
++      setDoc(doc(db, "users", auth.currentUser.uid), payload)
++        .catch(console.error);
++    } else {
++      localStorage.setItem("timeboxingAddNewData", JSON.stringify(payload));
++    }
+   }
+   function loadData() {
+     const s = localStorage.getItem("timeboxingAddNewData");
+@@ -330,6 +341,38 @@
+         saveData();
+       });
+     });
++
++  /* ---------- Auth State Handling ---------- */
++  onAuthStateChanged(auth, user => {
++    ["authBtn","authBtnMobile"].forEach(id => {
++      const btn = document.getElementById(id);
++      if (!btn) return;
++      btn.querySelector(".icon-glyph").textContent = user ? "🔓" : "🔐";
++      btn.setAttribute("data-tooltip", user ? "Logout" : "Login");
++    });
++    if (user) {
++      // live‐sync from Firestore
++      onSnapshot(doc(db, "users", user.uid), snap => {
++        if (!snap.exists()) return;
++        const d = snap.data();
++        Object.assign(config, d.config);
++        tasks = d.tasks;
++        taskIdCounter = d.taskIdCounter;
++        updateEmployeeAndLogo();
++        renderAllViews();
++      });
++    }
++  });
++  /* ---------- Login / Logout ---------- */
++  function toggleAuth() {
++    if (auth.currentUser) return signOut(auth);
++    const email = prompt("Email:");
++    const pwd   = prompt("Password:");
++    signInWithEmailAndPassword(auth, email, pwd)
++      .catch(e => alert("Login failed: " + e.message));
++  }
++  document.getElementById("authBtn")?.addEventListener("click", toggleAuth);
++  document.getElementById("authBtnMobile")?.addEventListener("click", toggleAuth);
+ });
